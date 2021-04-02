@@ -13,7 +13,7 @@ var fork = &cobra.Command{
 }
 
 func init() {
-	GetRootCmd().AddCommand(fork)
+	getRootCmd().AddCommand(fork)
 }
 
 func forkRun(cmd *cobra.Command, args []string) error {
@@ -28,16 +28,14 @@ func forkRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-
 	repo, err := git.NewRepository(repositoryPath, verboseMode)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-
 	return repo.AddRemote(&git.RemoteOptions{
 		Name: "upstream",
-		Url:  args[0],
+		URL:  args[0],
 	})
 }

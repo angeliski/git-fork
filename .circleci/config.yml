@@ -1,0 +1,142 @@
+version: 2.1
+
+orbs:
+  go: circleci/go@1.5.0
+
+jobs:
+  golint:
+    parameters:
+      version:
+        type: string
+        default: "1.16"
+    executor:
+      name: go/default
+      tag: "<< parameters.version >>"
+    steps:
+      - run:
+          name: "Print the Go version"
+          command: >
+            go version
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - run:
+          name: "Run golint"
+          command: |
+            go get -u golang.org/x/lint/golint
+            golint -set_exit_status ./...
+
+  gofmt:
+    parameters:
+      version:
+        type: string
+        default: "1.16"
+    executor:
+      name: go/default
+      tag: "<< parameters.version >>"
+    steps:
+      - run:
+          name: "Print the Go version"
+          command: >
+            go version
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - run:
+          name: "Run gofmt"
+          command: diff -u <(echo -n) <(gofmt -d -e .)
+  govet:
+    parameters:
+      version:
+        type: string
+        default: "1.16"
+    executor:
+      name: go/default
+      tag: "<< parameters.version >>"
+    steps:
+      - run:
+          name: "Print the Go version"
+          command: >
+            go version
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - run:
+          name: "Run go vet"
+          command: go vet -v ./...
+  test:
+    parameters:
+      version:
+        type: string
+        default: "1.16"
+    docker:
+      - image: "circleci/golang:<< parameters.version >>"
+    working_directory: /go/src/github.com/angeliski/git-fork
+    steps:
+      - run:
+          name: "Print the Go version"
+          command: >
+            go version
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run: ./cc-test-reporter before-build
+      - go/test:
+          race: true
+          coverprofile: << parameters.version >>-c.out
+          covermode: atomic
+      - persist_to_workspace:
+          root: .
+          paths:
+            - << parameters.version >>-c.out
+  upload_coverage:
+    parameters:
+      version:
+        type: string
+        default: "1.16"
+    docker:
+      - image: "circleci/golang:<< parameters.version >>"
+    working_directory: /go/src/github.com/angeliski/git-fork
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /go/src/github.com/angeliski/git-fork
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run: mv << parameters.version >>-c.out c.out
+      - run: ./cc-test-reporter after-build --exit-code $?
+workflows:
+  CI:
+    jobs:
+      - golint:
+          version: "1.16"
+      - gofmt:
+          version: "1.16"
+      - govet:
+          version: "1.16"
+      - test:
+          matrix:
+            parameters:
+              version: ["1.16", "1.15", "1.14", "1.13"]
+          requires:
+            - golint
+            - gofmt
+            - govet
+# TODO remove after add tests
+#      - upload_coverage:
+#          requires:
+#            - test
