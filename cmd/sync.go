@@ -19,7 +19,7 @@ func init() {
 	// o nome do remote que eu quero usar
 	// desabilitar o push padrão
 
-	GetRootCmd().AddCommand(sync)
+	getRootCmd().AddCommand(sync)
 }
 
 func syncRun(cmd *cobra.Command, args []string) error {
@@ -41,13 +41,13 @@ func syncRun(cmd *cobra.Command, args []string) error {
 	}
 
 	if !repo.HasRemote("upstream") {
-		return  errors.New("remote upstream not configured. Use git-fork fork` to configure")
+		return errors.New("remote upstream not configured. Use git-fork fork` to configure")
 	}
 
 	fmt.Println("Fetching")
 	err = repo.Fetch(&git.FetchOptions{
-		RemoteName:    "upstream",
-		Branch: "master", //TODO como lidar com master/main?
+		RemoteName: "upstream",
+		Branch:     "master", //TODO como lidar com master/main?
 	})
 
 	if err != nil {
@@ -56,21 +56,19 @@ func syncRun(cmd *cobra.Command, args []string) error {
 
 	fmt.Println("Pulling")
 	err = repo.Pull(&git.PullOptions{
-		RemoteName:    "upstream",
-		Branch: "master", //TODO como lidar com master/main?
+		RemoteName: "upstream",
+		Branch:     "master", //TODO como lidar com master/main?
 	})
 
 	if err != nil {
 		return err
 	}
 
-
 	fmt.Println("Pushing")
 	err = repo.Push(&git.PushOptions{
-		RemoteName:    "origin",
-		Branch: "master", //TODO como lidar com master/main?
+		RemoteName: "origin",
+		Branch:     "master", //TODO como lidar com master/main?
 	})
-
 
 	return err
 }

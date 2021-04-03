@@ -15,17 +15,15 @@ func runLoudly(cmd *exec.Cmd, verboseMode bool) error {
 	return cmd.Run()
 }
 
-
+// RunGitOperation Run a git command in the path
 func RunGitOperation(commands []string, path string, verboseMode bool) error {
 	var args []string
 	args = append(args, "git")
 	args = append(args, "-C")
-	args = append(args,path)
+	args = append(args, path)
 	args = append(args, commands...)
 
-	cmd := exec.Command(args[0],args[1:]...)
+	cmd := exec.Command(args[0], args[1:]...)
 
 	return runLoudly(cmd, verboseMode)
 }
-
-

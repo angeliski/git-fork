@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// GetPath returns the path to run the commands
 func GetPath(cmd *cobra.Command) (string, error) {
 	flag := cmd.Flag("path")
 	if flag.Value.String() != "" {
@@ -21,7 +22,7 @@ func GetPath(cmd *cobra.Command) (string, error) {
 	return path, nil
 }
 
-
+// IsVerboseMode returns if verbose mode is enabled
 func IsVerboseMode(cmd *cobra.Command) (bool, error) {
 	return cmd.Flags().GetBool("verbose")
 }

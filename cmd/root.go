@@ -21,10 +21,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "Run operations with verbose mode")
 }
 
-
-
-// GetRootCmd returns the rootCmd
-func GetRootCmd() *cobra.Command {
+// getRootCmd returns the rootCmd
+func getRootCmd() *cobra.Command {
 	return rootCmd
 }
 
