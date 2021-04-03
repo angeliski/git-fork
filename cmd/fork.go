@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"github.com/angeliski/git-fork/app"
+	"github.com/angeliski/git-fork/domain/repository"
+	"github.com/angeliski/git-fork/executor"
 	"github.com/angeliski/git-fork/git"
 	"github.com/spf13/cobra"
 	"log"
@@ -28,14 +31,17 @@ func forkRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repo, err := git.NewRepository(repositoryPath, verboseMode)
+	repo, err := git.NewRepositoryService(repositoryPath, executor.NewOsExecutor(verboseMode))
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	return repo.AddRemote(&git.RemoteOptions{
-		Name: "upstream",
-		URL:  args[0],
-	})
+	service := app.NewBusinessService(repo)
+
+	return service.Fork(
+		repository.Model{
+			RemoteName: "upstream",
+			URLRemote:  args[0],
+		})
 }
