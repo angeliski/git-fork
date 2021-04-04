@@ -9,6 +9,9 @@ all: quality build ## Run the tests and build the binary.
 
 quality: format lint vet test ## Run quality operations
 
+mocks: ## Generate mock for the application
+	docker run --user=$$(id -u):$$(id -g) -v $$PWD:/app -w /app vektra/mockery --all --recursive --keeptree --inpackage
+
 build: ## Build the binary.
 	go build -o bin/$(APP_NAME) *.go
 
