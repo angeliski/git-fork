@@ -119,6 +119,27 @@ jobs:
             chmod +x ./cc-test-reporter
       - run: mv << parameters.version >>-c.out c.out
       - run: ./cc-test-reporter after-build --exit-code $?
+  publish:
+    docker:
+      - image: circleci/golang:1.16
+    steps:
+      - checkout
+      - run:
+          name: 'Set github username and email'
+          command: |
+            git config --global user.email "angeliski@hotmail.com" && \
+            git config --global user.name "angeliski"
+      - run: |
+          curl -vkL -o - https://github.com/intuit/auto/releases/download/v10.24.1/auto-linux.gz | gunzip > ~/auto
+          chmod a+x ~/auto
+      - run: ~/auto shipit
+  release_binaries:
+    docker:
+      - image: circleci/golang:1.16
+    steps:
+      - checkout
+      - run: curl -sL https://git.io/goreleaser | bash
+
 workflows:
   CI:
     jobs:
@@ -139,3 +160,15 @@ workflows:
       - upload_coverage:
           requires:
             - test
+      - publish:
+          requires:
+            - test
+      - release_binaries:
+          # Only run this job on git tag pushes
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+          requires:
+            - publish
