@@ -138,6 +138,7 @@ jobs:
       - image: circleci/golang:1.16
     steps:
       - checkout
+      - run: git checkout main
       - run: |
           curl -vkL -o - https://github.com/intuit/auto/releases/download/v10.24.1/auto-linux.gz | gunzip > ~/auto
           chmod a+x ~/auto
