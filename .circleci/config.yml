@@ -138,7 +138,14 @@ jobs:
       - image: circleci/golang:1.16
     steps:
       - checkout
-      - run: curl -sL https://git.io/goreleaser | bash
+      - run: |
+          curl -vkL -o - https://github.com/intuit/auto/releases/download/v10.24.1/auto-linux.gz | gunzip > ~/auto
+          chmod a+x ~/auto
+      - run: |
+          if ~/auto label --exists release;
+          then
+            curl -sL https://git.io/goreleaser | bash
+          fi
 
 workflows:
   CI:
@@ -164,11 +171,9 @@ workflows:
           requires:
             - test
       - release_binaries:
-          # Only run this job on git tag pushes
           filters:
             branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+              only:
+                - main
           requires:
             - publish
