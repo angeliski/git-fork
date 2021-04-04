@@ -1,3 +1,15 @@
+# v0.1.1 (Sun Apr 04 2021)
+
+#### 🐛 Bug Fix
+
+- chore: update release process [#5](https://github.com/angeliski/git-fork/pull/5) ([@angeliski](https://github.com/angeliski))
+
+#### Authors: 1
+
+- Rogerio Angeliski ([@angeliski](https://github.com/angeliski))
+
+---
+
 # v0.1.0 (Sun Apr 04 2021)
 
 #### 🚀 Enhancement
