@@ -1,7 +1,12 @@
 {
   "plugins": [
     "git-tag",
-    "all-contributors",
+    [
+      "all-contributors",
+      {
+        "exclude": ["dependabot"]
+      }
+    ],
     "conventional-commits",
     "released"
   ],
