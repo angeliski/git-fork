@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
+	"github.com/angeliski/git-fork/app"
+	"github.com/angeliski/git-fork/domain/repository"
+	"github.com/angeliski/git-fork/executor"
 	"github.com/angeliski/git-fork/git"
 	"github.com/spf13/cobra"
 	"log"
@@ -34,41 +35,18 @@ func syncRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	repo, err := git.NewRepository(repositoryPath, verboseMode)
+	repo, err := git.NewRepositoryService(repositoryPath, executor.NewOsExecutor(verboseMode))
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	if !repo.HasRemote("upstream") {
-		return errors.New("remote upstream not configured. Use git-fork fork` to configure")
-	}
-
-	fmt.Println("Fetching")
-	err = repo.Fetch(&git.FetchOptions{
+	model := repository.Model{
 		RemoteName: "upstream",
 		Branch:     "master", //TODO como lidar com master/main?
-	})
-
-	if err != nil {
-		return err
 	}
 
-	fmt.Println("Pulling")
-	err = repo.Pull(&git.PullOptions{
-		RemoteName: "upstream",
-		Branch:     "master", //TODO como lidar com master/main?
-	})
+	service := app.NewBusinessService(repo)
 
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Pushing")
-	err = repo.Push(&git.PushOptions{
-		RemoteName: "origin",
-		Branch:     "master", //TODO como lidar com master/main?
-	})
-
-	return err
+	return service.Sync(model)
 }

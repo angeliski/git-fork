@@ -1,69 +1,59 @@
 package git
 
 import (
+	"github.com/angeliski/git-fork/domain/repository"
 	"github.com/angeliski/git-fork/executor"
 )
 
 // Repository is a representation from git operations
 type Repository struct {
-	path        string
-	verboseMode bool
+	path     string
+	executor executor.CommandExecutor
 }
 
-// PullOptions to run the command
-type PullOptions struct {
-	RemoteName string
-	Branch     string
-}
-
-// FetchOptions to run the command
-type FetchOptions struct {
-	RemoteName string
-	Branch     string
-}
-
-// PushOptions to run the command
-type PushOptions struct {
-	RemoteName string
-	Branch     string
-}
-
-// RemoteOptions to run the command
-type RemoteOptions struct {
-	Name string
-	URL  string
-}
-
-// NewRepository return the struct to run git operations
-func NewRepository(path string, verboseMode bool) (Repository, error) {
+// NewRepositoryService return the struct to run git operations
+func NewRepositoryService(path string, executor executor.CommandExecutor) (repository.Service, error) {
 	// TODO check if is a git repository
-	return Repository{path: path, verboseMode: verboseMode}, nil
+	return Repository{
+		path:     path,
+		executor: executor,
+	}, nil
 }
 
 // Fetch the repository based in options
-func (repo Repository) Fetch(options *FetchOptions) error {
-	cmdArr := []string{"fetch", options.RemoteName, options.Branch}
+func (r Repository) Fetch(repository repository.Model) error {
+	cmdArr := []string{"fetch", repository.RemoteName, repository.Branch}
 
-	return executor.RunGitOperation(cmdArr, repo.path, repo.verboseMode)
+	return r.executor.RunGitOperation(cmdArr, r.path)
 }
 
 // Pull the repository based in options
-func (repo Repository) Pull(options *PullOptions) error {
-	cmdArr := []string{"pull", options.RemoteName, options.Branch}
+func (r Repository) Pull(repository repository.Model) error {
+	cmdArr := []string{"pull", repository.RemoteName, repository.Branch}
 
-	return executor.RunGitOperation(cmdArr, repo.path, repo.verboseMode)
+	return r.executor.RunGitOperation(cmdArr, r.path)
 }
 
 // Push the repository based in options
-func (repo Repository) Push(options *PushOptions) error {
-	cmdArr := []string{"push", options.RemoteName, options.Branch}
+func (r Repository) Push(repository repository.Model) error {
+	cmdArr := []string{"push", repository.RemoteName, repository.Branch}
 
-	return executor.RunGitOperation(cmdArr, repo.path, repo.verboseMode)
+	return r.executor.RunGitOperation(cmdArr, r.path)
 }
 
 // AddRemote to the repository based in options
-func (repo Repository) AddRemote(options *RemoteOptions) error {
-	cmdArr := []string{"remote", "add", options.Name, options.URL}
+func (r Repository) AddRemote(repository repository.Model) error {
+	cmdArr := []string{"remote", "add", repository.RemoteName, repository.URLRemote}
 
-	return executor.RunGitOperation(cmdArr, repo.path, repo.verboseMode)
+	return r.executor.RunGitOperation(cmdArr, r.path)
+}
+
+// HasRemote returns if the remoteName is present on the repository
+func (r Repository) HasRemote(remoteName string) bool {
+
+	cmdArr := []string{"remote", "get-url", remoteName}
+
+	err := r.executor.RunGitOperation(cmdArr, r.path)
+
+	return err == nil
 }
