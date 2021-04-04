@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    "git-tag",
+    "all-contributors",
+    "conventional-commits",
+    "released"
+  ],
+  "owner": "angeliski",
+  "repo": "git-fork",
+  "name": "angeliski",
+  "email": "angeliski@hotmail.com",
+  "onlyPublishWithReleaseLabel": true
+}

@@ -12,6 +12,13 @@ quality: format lint vet test ## Run quality operations
 mocks: ## Generate mock for the application
 	docker run --user=$$(id -u):$$(id -g) -v $$PWD:/app -w /app vektra/mockery --all --recursive --keeptree --inpackage
 
+build-all-binaries: ## Build all binaries in dist folder. Run `sudo chown -R $(id -u):$(id -u) ./dist` to change user permission
+	docker run --rm --privileged \
+	  -v $$PWD:/git-fork \
+	  -v /var/run/docker.sock:/var/run/docker.sock \
+	  -w /git-fork \
+	  goreleaser/goreleaser build --snapshot --rm-dist
+
 build: ## Build the binary.
 	go build -o bin/$(APP_NAME) *.go
 
